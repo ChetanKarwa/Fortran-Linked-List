@@ -209,11 +209,10 @@ program test_link
   call L%append(42)
   call L%append(3.141d0)
   call L%append('text')
-  
+  call L%append(Vel2)
+  call L%append(Vel)
   write(*,*)'The list until now:'
-  !-------------
-  !Foward sweep
-  !-------------
+  
   curr => L%head
   do while ( associated(curr) )
       select type (item =>curr%item)
@@ -235,9 +234,6 @@ program test_link
       curr => curr%next
   end do
 
-  !-------------
-  ! Remove item 4 from list
-  !-------------
   write(*,*)'--------------'
 
   data = L%get(2);
@@ -260,9 +256,6 @@ program test_link
 
   write(*,*)'--------------'
   
-  !-------------
-  !Backward sweep
-  !-------------
   call L % remove(3)
 
   write(*,*)'New List after pop'
