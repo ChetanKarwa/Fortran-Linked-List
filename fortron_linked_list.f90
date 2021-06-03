@@ -195,91 +195,45 @@ program test_link
   
   type(list):: L
   type(node), pointer:: curr
-  integer::i
+  integer::i,j
+  real :: T1,T2,F
 
   class(*), allocatable :: data
 
   do i=1,size(Vel%vec)
       Vel%vec(i) = i
   end do
-
+  call cpu_time(T1)
   ! !-------------
   ! !Append items
   ! !-------------
-  call L%append(42)
-  call L%append(3.141d0)
-  call L%append('text')
-  call L%append(Vel2)
-  call L%append(Vel)
-  write(*,*)'The list until now:'
-  
-  curr => L%head
-  do while ( associated(curr) )
-      select type (item =>curr%item)
-      type is (integer)
-          write(*,*)'List > ',item
-      type is (double precision)
-          write(*,*)'List > ',item
-      type is (character(*))
-          write(*,*)'List > ',item
-      type is (logical)
-          write(*,*)'List > ',item
-      type is (vector)
-          write(*,*)'List > ',item%vec
-      type is (struct)
-          write(*,*)'List > ',item%a,item%b,item%c,item%d
-      class default
-          write(*,*)'other'
-      end select
-      curr => curr%next
+  do i=1,1000000000
+    call L%append(i)
   end do
+  call cpu_time(T2)
+  write(*,*)'The list until now:'
 
   write(*,*)'--------------'
-
-  data = L%get(2);
-  select type (data)
-      type is (integer)
-          write(*,*)'Item at index 2> ',data
-      type is (double precision)
-          write(*,*)'Item at index 2> ',data
-      type is (character(*))
-          write(*,*)'Item at index 2> ',data
-      type is (logical)
-          write(*,*)'Item at index 2> ',data
-      type is (vector)
-          write(*,*)'Item at index 2> ',data%vec
-      type is (struct)
-          write(*,*)'Item at index 2> ',data%a,data%b,data%c,data%d
-      class default
-          write(*,*)'other'
-      end select
-
-  write(*,*)'--------------'
-  
-  call L % remove(3)
 
   write(*,*)'New List after pop'
-
-  curr => L%head
-  do while ( associated(curr) )
-      select type (item =>curr%item)
+  
+  write(*,*) T1,T2
+  F = 0
+  call cpu_time(T1)
+  do i=1,100000
+  do j=90,100
+    data = L%get(j);
+    select type (data)
       type is (integer)
-          write(*,*)'List > ',item
-      type is (double precision)
-          write(*,*)'List > ',item
-      type is (character(*))
-          write(*,*)'List > ',item
-      type is (logical)
-          write(*,*)'List > ',item
-      type is (vector)
-          write(*,*)'List > ',item%vec
-      type is (struct)
-          write(*,*)'List > ',item%a,item%b,item%c,item%d
+          F = F+data;
       class default
           write(*,*)'other'
-      end select
-      curr => curr%next
+    end select
   end do
+  end do
+  call cpu_time(T2)
+
+  write(*,*) T1,T2
   write(*,*)'Done'
 
   !-------------
