@@ -1,5 +1,5 @@
 module linked_list
-    implicit none 
+    implicit none  
     
     ! making Node and List struct globally available
     public:: Node, List
