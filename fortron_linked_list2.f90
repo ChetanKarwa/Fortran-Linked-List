@@ -120,7 +120,7 @@ program testpro
   real          :: T1,T2
 
   call cpu_time(T1)
-  do i=1,1000000
+  do i=1,100000
     call L%append(i)
   end do
   call cpu_time(T2)

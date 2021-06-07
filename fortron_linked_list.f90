@@ -207,7 +207,7 @@ program test_link
   ! !-------------
   ! !Append items
   ! !-------------
-  do i=1,1000000000
+  do i=1,100000
     call L%append(i)
   end do
   call cpu_time(T2)
@@ -218,19 +218,7 @@ program test_link
   write(*,*)'New List after pop'
   
   write(*,*) T1,T2
-  F = 0
-  call cpu_time(T1)
-  do i=1,100000
-  do j=90,100
-    data = L%get(j);
-    select type (data)
-      type is (integer)
-          F = F+data;
-      class default
-          write(*,*)'other'
-    end select
-  end do
-  end do
+  
   call cpu_time(T2)
 
   write(*,*) T1,T2
