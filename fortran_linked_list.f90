@@ -162,17 +162,18 @@ module linked_list
       !Entrada:
       class(node), intent(inout) :: this_node
       !Local:
-      
+      type(node), pointer :: current_node
+      type(node), pointer :: next_node
       !Deallocate it's item
-      if (allocated(this_node%item)) deallocate(this_node%item)
-      !Nullify it's pointers
-      if (associated(this_node%next)) then
-          call this_node%next%destroy_all()
-          deallocate(this_node%next)
-          nullify(this_node%next)
-      end if
-      nullify(this_node%prev)
-      
+      current_node = this_node
+      next_node => current_node%next
+      do
+        deallocate(current_node)
+        if (.not. associated(next_node)) exit
+        current_node => next_node
+        next_node => current_node%next
+      end do
+
     end subroutine all_nodes_detroyed
   
   
@@ -207,18 +208,31 @@ program test_link
   ! !-------------
   ! !Append items
   ! !-------------
-  do i=1,100000
+  do i=1,1000000
     call L%append(i)
   end do
   call cpu_time(T2)
+  i = 1
+
+  write(*,*) T1,T2
+  
+  call cpu_time(T1)
+  do while (i<=100000)
+    data = L%get(i)
+    select type (data)
+    type is (integer)
+    write(*,*) data 
+    end select
+    i = i*10
+  end do  
+  call cpu_time(T2)
+
   write(*,*)'The list until now:'
 
   write(*,*)'--------------'
 
   write(*,*)'New List after pop'
-  
-  write(*,*) T1,T2
-  
+    
   call cpu_time(T2)
 
   write(*,*) T1,T2
@@ -227,6 +241,10 @@ program test_link
   !-------------
   !Destroy the list and frees the memmory
   !-------------
+  call cpu_time(T1)
   call L%destroy()
+  call cpu_time(T2)
+
+  write(*,*) T1,T2
 
 end program test_link
