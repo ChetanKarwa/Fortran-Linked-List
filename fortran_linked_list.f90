@@ -147,17 +147,13 @@ module linked_list
       class(list), intent(inout) :: this_list
       !Local:
     
-      this_list%num_nodes = 0
-      if (associated(this_list%head)) then
-          call this_list%head%destroy_all()
-          deallocate(this_list%head)
-          nullify(this_list%head)
-          nullify(this_list%tail)
-      end if
+      do while (.not. this_list%num_nodes==0)
+        call this_list%remove(1)
+      end do
       
     end subroutine destroy_whole_list
   
-    pure recursive subroutine all_nodes_detroyed( this_node )
+    pure subroutine all_nodes_detroyed( this_node )
       implicit none
       !Entrada:
       class(node), intent(inout) :: this_node
@@ -217,13 +213,13 @@ program test_link
   write(*,*) T1,T2
   
   call cpu_time(T1)
-  do while (i<=100000)
-    data = L%get(i)
+  do while (i<=10)
+    data = L%get(1000000-i)
     select type (data)
     type is (integer)
     write(*,*) data 
     end select
-    i = i*10
+    i = i+1
   end do  
   call cpu_time(T2)
 
