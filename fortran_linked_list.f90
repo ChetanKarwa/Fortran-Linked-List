@@ -60,50 +60,6 @@ module linked_list
       this_list%num_nodes = this_list%num_nodes + 1
     end subroutine append_at_tail
   
-    ! Pop out a node from the list, by a given number.
-    pure subroutine pop_node_at_index( this_list, node_index )
-      implicit none
-      
-      class(list), intent(inout) :: this_list
-      integer, intent(in):: node_index
-  
-      type(node), pointer:: current_node
-      integer:: count
-  
-      !iterating through the list to reach the nth node
-      current_node => this_list%head
-      count = 1
-      do while ( associated(current_node) )
-          if (count==node_index) then
-            if (associated(current_node%prev).and.associated(current_node%next)) then
-                !List Node is in mid
-                current_node%next%prev => current_node%prev
-                current_node%prev%next => current_node%next
-        
-            else if (associated(current_node%prev)) then
-                !List tail
-                nullify(current_node%prev%next)
-                this_list%tail => current_node%prev
-        
-            else if (associated(current_node%next)) then
-                !List head
-                nullify(current_node%next%prev)
-                this_list%head => current_node%next
-            end if
-        
-            !Destroy node content and Free it's memory
-            call current_node%destroy()  
-            deallocate(current_node)
-        
-            !Reduce the count by 1
-            this_list%num_nodes = this_list%num_nodes - 1;
-            return
-          end if
-          current_node => current_node%next
-          count = count+1
-      end do
-    end subroutine pop_node_at_index
-
     function get_node_at_index( this_list, node_index ) result (return_item)
       implicit none
       
@@ -118,16 +74,79 @@ module linked_list
       current_node => this_list%head
       count = 1
       do while ( associated(current_node) )
-          if (count==node_index) then
-            return_item = current_node%item
-            return
-          end if
-          current_node => current_node%next
-          count = count+1
+        if (count==node_index) then
+          return_item = current_node%item
+          return
+        end if
+        current_node => current_node%next
+        count = count+1
       end do
     end function get_node_at_index
+
+    ! Pop out a node from the list, by a given number.
+    pure subroutine pop_node_at_index( this_list, node_index )
+      implicit none
+      
+      class(list), intent(inout) :: this_list
+      integer, intent(in):: node_index
   
+      type(node), pointer:: current_node
+      integer:: count
   
+      !iterating through the list to reach the nth node
+      current_node => this_list%head
+      count = 1
+      do while ( associated(current_node) )
+        if (count==node_index) then
+          if (associated(current_node%prev).and.associated(current_node%next)) then
+            !List Node is in mid
+            current_node%next%prev => current_node%prev
+            current_node%prev%next => current_node%next
+      
+          else if (associated(current_node%prev)) then
+            !List tail
+            nullify(current_node%prev%next)
+            this_list%tail => current_node%prev
+      
+          else if (associated(current_node%next)) then
+            !List head
+            nullify(current_node%next%prev)
+            this_list%head => current_node%next
+          end if
+      
+          !Destroy node content and Free it's memory
+          call current_node%destroy()  
+          deallocate(current_node)
+      
+          !Reduce the count by 1
+          this_list%num_nodes = this_list%num_nodes - 1
+          return
+        end if
+        current_node => current_node%next
+        count = count+1
+      end do
+    end subroutine pop_node_at_index
+  
+    pure subroutine destroy_whole_list( this_list )
+      implicit none
+      !Entrada:
+      class(list), intent(inout) :: this_list
+      !Local:
+      type(node), pointer:: current_node
+
+      do while (.not. this_list%num_nodes==0)
+        current_node => this_list%head
+        if (associated(current_node%next)) then
+          nullify(current_node%next%prev)
+          this_list%head => current_node%next
+        end if
+        call current_node%destroy()
+        deallocate(current_node)
+        this_list%num_nodes = this_list%num_nodes - 1
+      end do
+      
+    end subroutine destroy_whole_list
+
     ! Delete a node from the list and frees the memory in the item.
     pure subroutine node_destroyed( this_node )
       implicit none
@@ -140,18 +159,6 @@ module linked_list
       nullify(this_node%next)
       nullify(this_node%prev)
     end subroutine node_destroyed
-  
-    pure subroutine destroy_whole_list( this_list )
-      implicit none
-      !Entrada:
-      class(list), intent(inout) :: this_list
-      !Local:
-    
-      do while (.not. this_list%num_nodes==0)
-        call this_list%remove(1)
-      end do
-      
-    end subroutine destroy_whole_list
   
     pure subroutine all_nodes_detroyed( this_node )
       implicit none
@@ -171,9 +178,6 @@ module linked_list
       end do
 
     end subroutine all_nodes_detroyed
-  
-  
-  
   end module linked_list
 program test_link
   use linked_list
@@ -204,7 +208,7 @@ program test_link
   ! !-------------
   ! !Append items
   ! !-------------
-  do i=1,1000000
+  do i=1,100000000
     call L%append(i)
   end do
   call cpu_time(T2)
@@ -213,13 +217,13 @@ program test_link
   write(*,*) T1,T2
   
   call cpu_time(T1)
-  do while (i<=10)
-    data = L%get(1000000-i)
+  do while (i<=100000000)
+    data = L%get(i)
     select type (data)
     type is (integer)
     write(*,*) data 
     end select
-    i = i+1
+    i = i*10
   end do  
   call cpu_time(T2)
 

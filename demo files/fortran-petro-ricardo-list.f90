@@ -333,12 +333,14 @@ module Linked_List_petro
         !-------------
         !Append items
         !-------------
-       do i=1,100000
+       do i=1,1000
         call L%append(i);
        end do
         
         write(*,*)'Done'
-    
+        do i = 1,10
+            call L%get(i)
+        end do
         !-------------
         !Destroy the list and frees the memmory
         !-------------
