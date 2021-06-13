@@ -1,0 +1,30 @@
+The following is an analysis of the time taken by my program on my system to built, traverse and delete a linked list.
+(Note: I did run every the program 10 times and an average time for everything)
+
+Built and Delete are clearly the time taken to build the whole list and delete the whole list.
+
+The traverse time = Time taken to traverse 100 random / 10;
+In other words it is the approx time taken to traverse 10 elements.
+(Note: To generate Random Integer I used this -  rand()*length_of_list)
+
+100000000 (100 million)
+- built:      31.671300 s
+- traverse:   41.024400 s
+- delete:     19.850200 s
+
+10000000 (10 million)
+- built:      3.343750 s
+- traverse:   0.754687 s
+- delete:     0.687500 s
+
+1000000 (million)
+- built:      0.328125 s
+- traverse:   0.065625 s
+- delete:     0.062500 s
+
+100000
+- built:      0.015625 s
+- traverse:   0.009375 s
+- delete:     0.000000 s
+
+For a list of 10000,1000,100,10 nodes, the process time was negligible.

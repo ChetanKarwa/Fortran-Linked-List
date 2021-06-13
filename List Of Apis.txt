@@ -1,0 +1,14 @@
+List of APIs that I consider are important enough to be included in the Fortran-stdlib:
+- Element At  : Returns the element stored at index.
+- push        : Append an element at the end of the list
+- insert      : Insert an element at specfied index of the list
+- pop         : Removes an element from the end of the list
+- remove      : Removes an element present at given index
+- set/replace : Replaces an element at the given index
+- clear       : Deletes the whole list (Without memory leaks)
+- Size        : Returns the size of the list 
+- reverse     : Reverse the list
+- sort        : Sort the items in the list (if homogenous, not sure)
+- Concat      : Appends a list to another list
+- slice       : Returns a Slice (a continous part) of the list
+- splice      : Removes a continous part of the list

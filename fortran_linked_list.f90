@@ -65,22 +65,23 @@ module linked_list
       
       class(list), intent(inout) :: this_list
       integer, intent(in):: node_index
-      class(*), allocatable :: return_item
+      class(*), pointer :: return_item
       type(node), pointer:: current_node
       integer:: count
-      allocate(return_item,source = "Wrong Input")
-  
       !iterating through the list to reach the nth node
       current_node => this_list%head
       count = 1
       do while ( associated(current_node) )
         if (count==node_index) then
-          return_item = current_node%item
+          return_item => current_node%item
+          nullify(current_node)
           return
         end if
         current_node => current_node%next
         count = count+1
       end do
+      nullify(current_node)
+      allocate(return_item,source = "Wrong Input")
     end function get_node_at_index
 
     ! Pop out a node from the list, by a given number.
@@ -178,73 +179,5 @@ module linked_list
       end do
 
     end subroutine all_nodes_detroyed
-  end module linked_list
-program test_link
-  use linked_list
-  implicit none
-  
-  type struct
-      integer:: a=1,b=2,c=3
-      double precision::d=5
-  end type struct
-  type(struct):: Vel2
+end module linked_list
 
-  type vector
-      double precision, dimension(3):: vec
-  end type vector
-  type(vector)::Vel
-  
-  type(list):: L
-  type(node), pointer:: curr
-  integer::i,j
-  real :: T1,T2,F
-
-  class(*), allocatable :: data
-
-  do i=1,size(Vel%vec)
-      Vel%vec(i) = i
-  end do
-  call cpu_time(T1)
-  ! !-------------
-  ! !Append items
-  ! !-------------
-  do i=1,100000000
-    call L%append(i)
-  end do
-  call cpu_time(T2)
-  i = 1
-
-  write(*,*) T1,T2
-  
-  call cpu_time(T1)
-  do while (i<=100000000)
-    data = L%get(i)
-    select type (data)
-    type is (integer)
-    write(*,*) data 
-    end select
-    i = i*10
-  end do  
-  call cpu_time(T2)
-
-  write(*,*)'The list until now:'
-
-  write(*,*)'--------------'
-
-  write(*,*)'New List after pop'
-    
-  call cpu_time(T2)
-
-  write(*,*) T1,T2
-  write(*,*)'Done'
-
-  !-------------
-  !Destroy the list and frees the memmory
-  !-------------
-  call cpu_time(T1)
-  call L%destroy()
-  call cpu_time(T2)
-
-  write(*,*) T1,T2
-
-end program test_link
