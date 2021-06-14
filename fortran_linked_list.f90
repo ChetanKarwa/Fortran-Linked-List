@@ -1,4 +1,4 @@
-module linked_list
+module Child_linked_list
     implicit none  
     
     ! making Node and List struct globally available
@@ -24,10 +24,19 @@ module linked_list
       procedure:: destroy => destroy_whole_list
       procedure:: remove => pop_node_at_index
       procedure:: get => get_node_at_index
+      procedure:: size => get_length
     end type List
   
     contains
   
+
+    pure function get_length (this_list) result (length)
+      implicit none 
+      class(list), intent(in)  :: this_list
+      integer                     :: length 
+      length = this_list%num_nodes
+    end function get_length
+
     ! making a new_node
     pure function initialise_node( item ) result( new_node )
       implicit none
@@ -179,5 +188,5 @@ module linked_list
       end do
 
     end subroutine all_nodes_detroyed
-end module linked_list
+end module Child_linked_list
 

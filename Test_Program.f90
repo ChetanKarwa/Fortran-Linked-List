@@ -1,5 +1,5 @@
 program test_link
-  use linked_list
+  use Linked_List
   implicit none
   
   type struct
@@ -13,7 +13,7 @@ program test_link
   end type vector
   type(vector)::Vel
   
-  type(list):: L
+  type(Parent_List):: L
   integer::i,j,length
   real :: T1,T2,F
 
@@ -25,9 +25,7 @@ program test_link
   ! !-------------
   ! !Append items
   ! !-------------
-
-  print *, "INPUT THE LENGTH"
-  read(*,*) length
+  length = 200000
   
   call cpu_time(T1)
   do i=1,length
@@ -37,18 +35,6 @@ program test_link
   i = 1
 
   write(*,*) T2-T1
-  call srand(123456789)
-  call cpu_time(T1)
-  do while (i<=10)
-    j = rand()*length
-    data => L%get(j)
-    select type (data)
-    type is (integer)
-    write(*,*) data 
-    end select 
-    i = i+1
-  end do  
-  call cpu_time(T2)
 
 
   write(*,*) (T2-T1)
