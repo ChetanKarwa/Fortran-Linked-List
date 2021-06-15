@@ -1,4 +1,4 @@
-# Fortran-Linked-List
+# Implement a linked list module for stdlib of fortran-lang
 I have got this opertunity to contribute to fortran-lang under GSoC.
 This repository contains all my files and modules that I develop for this project.
 
