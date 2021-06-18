@@ -19,7 +19,8 @@ module Linked_List
     contains
     procedure :: append => append_at_child_tail
     procedure :: append_new_child => append_in_new_child
-    procedure :: destroy => destroy_whole_parent_list 
+    procedure :: destroy => destroy_whole_parent_list
+    procedure :: get => get_element_at_index_in_parent 
     ! procedure :: get => get_node_at_index
   end type Parent_List
 
@@ -60,8 +61,9 @@ module Linked_List
     implicit none 
     ! initialisation of list to be used and item
     class(Parent_List), intent(inout) :: this_parent_list
-    class(*), intent(in) :: item
-    type(List)           :: new_child 
+    class(*), intent(in)  :: item
+    type(List)            :: new_child 
+
     call new_child%append(item)
     if(this_parent_list%num_parent_nodes==0)then
       allocate(this_parent_list%head, source=initialise_parent_node(new_child))
@@ -95,5 +97,29 @@ module Linked_List
     end do
       
   end subroutine destroy_whole_parent_list
+
+  function get_element_at_index_in_parent( this_parent_list , node_index ) result (return_item)
+    implicit none
+    
+    class(Parent_List), intent(inout) :: this_parent_list
+    integer, intent(in):: node_index
+    class(*), pointer :: return_item
+    type(Parent_Node), pointer:: current_node
+    integer:: count
+    !iterating through the list to reach the nth node
+    count = node_index
+    current_node => this_parent_list%head
+    do while ( associated(current_node) )
+      if(count<=current_node%child%size()) then
+        return_item => current_node%child%get(count)
+        return
+      else
+        count = count - current_node%child%size()
+        current_node => current_node%next
+      end if
+    end do
+    nullify(current_node)
+    allocate(return_item,source = "Wrong Input")
+  end function get_element_at_index_in_parent
 
 end module Linked_List

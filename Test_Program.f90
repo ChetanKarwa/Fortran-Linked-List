@@ -25,7 +25,8 @@ program test_link
   ! !-------------
   ! !Append items
   ! !-------------
-  length = 200000
+  print*, "Length Of Required List"
+  read(*,*) length
   
   call cpu_time(T1)
   do i=1,length
@@ -36,6 +37,18 @@ program test_link
 
   write(*,*) T2-T1
 
+  call srand(123456789)
+  call cpu_time(T1)
+  do while (i<=1000)
+    j = rand()*length
+    data => L%get(j)
+    select type (data)
+    type is (integer)
+    write(*,*) data 
+    end select 
+    i = i+1
+  end do  
+  call cpu_time(T2)
 
   write(*,*) (T2-T1)
   write(*,*)'Done'
