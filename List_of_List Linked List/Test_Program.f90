@@ -39,12 +39,11 @@ program test_link
 
   call srand(123456789)
   call cpu_time(T1)
-  do while (i<=1000)
+  do while (i<=100)
     j = rand()*length
     data => L%get(j)
     select type (data)
     type is (integer)
-    write(*,*) data 
     end select 
     i = i+1
   end do  
