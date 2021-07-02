@@ -1,5 +1,6 @@
 module Linked_List 
   use Child_linked_list
+  use OMP_LIB
   implicit none 
 
   public :: Parent_Node,Parent_List
@@ -76,25 +77,44 @@ module Linked_List
     this_parent_list%num_parent_nodes = this_parent_list%num_parent_nodes + 1
   end subroutine append_in_new_child
 
-  pure subroutine destroy_whole_parent_list( this_parent_list )
+  subroutine destroy_whole_parent_list( this_parent_list )
     implicit none
     !Entrada:
     class(Parent_List), intent(inout) :: this_parent_list
     !Local:
     type(Parent_Node), pointer:: current_node
+    type(Parent_Node), pointer:: next_node
+    integer                   :: count
 
-    do while (.not. this_parent_list%num_parent_nodes==0)
-      current_node => this_parent_list%head
-      if (associated(current_node%next)) then
-        nullify(current_node%next%prev)
-        this_parent_list%head => current_node%next
+    !$OMP PARALLEL PRIVATE(current_node,count,next_node)
+    count = this_parent_list%num_parent_nodes
+    next_node => this_parent_list%head
+    do while (count>0)
+      current_node => next_node
+      if(modulo(count,8)==omp_get_thread_num()) then
+        call current_node%child%destroy()
+        deallocate(current_node%child)
       end if
-      call current_node%child%destroy()
-      if(allocated(current_node%child)) deallocate(current_node%child)
-      nullify(current_node%next)
-      nullify(current_node%prev)
-      this_parent_list%num_parent_nodes = this_parent_list%num_parent_nodes - 1
+      next_node => current_node%next
+      count = count-1
     end do
+    !$OMP END PARALLEL
+
+    ! count = this_parent_list%num_parent_nodes
+    ! do while (count>0)
+    !   current_node => this_parent_list%head
+    !   if (associated(current_node%next)) then
+    !     nullify(current_node%next%prev)
+    !     this_parent_list%head => current_node%next
+    !   end if
+    !   ! call current_node%child%destroy()
+    !   ! next_node => current_node%next
+    !   count = count-1
+    !   if(allocated(current_node%child)) deallocate(current_node%child)
+    !   nullify(current_node%next)
+    !   nullify(current_node%prev)
+    !   this_parent_list%num_parent_nodes = this_parent_list%num_parent_nodes - 1
+    ! end do
       
   end subroutine destroy_whole_parent_list
 
