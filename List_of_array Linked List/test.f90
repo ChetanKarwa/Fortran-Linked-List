@@ -28,5 +28,10 @@ program temp
   call cpu_time(T2)
   write(*,*) T2-T1
 
+  call cpu_time(T1)
+  call L%destroy()
+  call cpu_time(T2)
+  write(*,*) T2-T1
+
 
 end program temp

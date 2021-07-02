@@ -16,7 +16,7 @@ module linked_list
     type(arrayItem), dimension(maxSize):: array
     integer             :: size
     contains
-    ! procedure, private :: destroy => node_destroyed
+    procedure, private :: destroy => node_destroyed
     ! procedure, private :: destroy_all => all_nodes_detroyed
   end type Node
 
@@ -27,7 +27,7 @@ module linked_list
     type(Node), pointer :: tail => null()
     contains
     procedure:: append => append_at_tail
-    ! procedure:: destroy => destroy_whole_list
+    procedure:: destroy => destroy_whole_list
     ! procedure:: remove => pop_node_at_index
     procedure:: get => get_node_at_index
   end type List
@@ -59,6 +59,7 @@ module linked_list
         allocate(this_list%tail%next, source=initialise_node(item))
         this_list%tail%next%prev => this_list%tail
         this_list%tail => this_list%tail%next
+        this_list%num_nodes = this_list%num_nodes + 1
         else
           allocate(this_list%tail%array(num_nodes+1)%item,source=item)
           this_list%tail%size = num_nodes+1
@@ -66,10 +67,8 @@ module linked_list
     else
         allocate(this_list%head, source=initialise_node(item))
         this_list%tail => this_list%head
+        this_list%num_nodes = 1
     end if
-
-    !incrementing number of nodes
-    this_list%num_nodes = this_list%num_nodes + 1
   end subroutine append_at_tail
 
   function get_node_at_index( this_list, node_index ) result (return_item)
@@ -96,82 +95,40 @@ module linked_list
     allocate(return_item,source = "Wrong Input")
   end function get_node_at_index
 
-  ! ! Pop out a node from the list, by a given number.
-  ! pure subroutine pop_node_at_index( this_list, node_index )
-  !   implicit none
-    
-  !   class(list), intent(inout) :: this_list
-  !   integer, intent(in):: node_index
+  subroutine destroy_whole_list( this_list )
+    implicit none
+    !Entrada:
+    class(list), intent(inout) :: this_list
+    !Local:
+    type(node), pointer:: current_node
+    write(*,*) this_list%num_nodes
+    do while (this_list%num_nodes>0)
+      current_node => this_list%head
+      if (associated(current_node%next)) then
+        nullify(current_node%next%prev)
+        this_list%head => current_node%next
+      end if
+      call current_node%destroy()
+      deallocate(current_node)
+      this_list%num_nodes = this_list%num_nodes - 1
+    end do
+  end subroutine destroy_whole_list
 
-  !   type(node), pointer:: current_node
-  !   integer:: count
+  ! Delete a node from the list and frees the memory in the item.
+  pure subroutine node_destroyed( this_node )
+    implicit none
+    !initialising:
+    class(node), intent(inout) :: this_node
+    integer                    :: i
 
-  !   !iterating through the list to reach the nth node
-  !   current_node => this_list%head
-  !   count = 1
-  !   do while ( associated(current_node) )
-  !     if (count==node_index) then
-  !       if (associated(current_node%prev).and.associated(current_node%next)) then
-  !         !List Node is in mid
-  !         current_node%next%prev => current_node%prev
-  !         current_node%prev%next => current_node%next
-    
-  !       else if (associated(current_node%prev)) then
-  !         !List tail
-  !         nullify(current_node%prev%next)
-  !         this_list%tail => current_node%prev
-    
-  !       else if (associated(current_node%next)) then
-  !         !List head
-  !         nullify(current_node%next%prev)
-  !         this_list%head => current_node%next
-  !       end if
-    
-  !       !Destroy node content and Free it's memory
-  !       call current_node%destroy()  
-  !       deallocate(current_node)
-    
-  !       !Reduce the count by 1
-  !       this_list%num_nodes = this_list%num_nodes - 1
-  !       return
-  !     end if
-  !     current_node => current_node%next
-  !     count = count+1
-  !   end do
-  ! end subroutine pop_node_at_index
-
-  ! pure subroutine destroy_whole_list( this_list )
-  !   implicit none
-  !   !Entrada:
-  !   class(list), intent(inout) :: this_list
-  !   !Local:
-  !   type(node), pointer:: current_node
-
-  !   do while (.not. this_list%num_nodes==0)
-  !     current_node => this_list%head
-  !     if (associated(current_node%next)) then
-  !       nullify(current_node%next%prev)
-  !       this_list%head => current_node%next
-  !     end if
-  !     call current_node%destroy()
-  !     deallocate(current_node)
-  !     this_list%num_nodes = this_list%num_nodes - 1
-  !   end do
-    
-  ! end subroutine destroy_whole_list
-
-  ! ! Delete a node from the list and frees the memory in the item.
-  ! pure subroutine node_destroyed( this_node )
-  !   implicit none
-  !   !initialising:
-  !   class(node), intent(inout) :: this_node
-
-  !   !Deallocate it's item
-  !   if (allocated(this_node%item)) deallocate(this_node%item)
-  !   !Nullify it's pointers
-  !   nullify(this_node%next)
-  !   nullify(this_node%prev)
-  ! end subroutine node_destroyed
+    !Deallocate it's item
+    do i=1,maxSize
+    if (allocated(this_node%array(i)%item)) deallocate(this_node%array(i)%item)
+    end do
+    !Nullify it's pointers
+    nullify(this_node%next)
+    nullify(this_node%prev)
+  end subroutine node_destroyed
 
   ! pure subroutine all_nodes_detroyed( this_node )
   !   implicit none
