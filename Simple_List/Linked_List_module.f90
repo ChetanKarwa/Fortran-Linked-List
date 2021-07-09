@@ -180,3 +180,6 @@ module linked_list
 
   end subroutine all_nodes_detroyed
 end module linked_list
+
+
+Come up with  
