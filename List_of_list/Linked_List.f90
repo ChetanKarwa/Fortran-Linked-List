@@ -1,15 +1,15 @@
-module Linked_List 
+module Linked_List
   use Child_linked_list
   use OMP_LIB
-  implicit none 
+  implicit none
 
   public :: Parent_Node,Parent_List
 
   type Parent_Node
     type(Parent_Node), pointer :: next => null()
     type(Parent_Node), pointer :: prev => null()
-    type(List) , allocatable          :: child 
-    contains 
+    type(List) , allocatable          :: child
+    contains
     procedure :: size=>child_length
   end type Parent_Node
 
@@ -21,21 +21,21 @@ module Linked_List
     procedure :: append => append_at_child_tail
     procedure :: append_new_child => append_in_new_child
     procedure :: destroy => destroy_whole_parent_list
-    procedure :: get => get_element_at_index_in_parent 
+    procedure :: get => get_element_at_index_in_parent
     ! procedure :: get => get_node_at_index
   end type Parent_List
 
   contains
 
   pure function child_length(this_parent_node) result(size)
-    implicit none 
+    implicit none
     class(Parent_Node), intent(in) :: this_parent_node
-    integer :: size 
+    integer :: size
     size = this_parent_node%child%size()
   end function child_length
 
   pure subroutine append_at_child_tail(this_parent_list,item)
-    implicit none 
+    implicit none
     ! initialisation of list to be used and item
     class(Parent_List), intent(inout) :: this_parent_list
     class(*), intent(in) :: item
@@ -43,7 +43,7 @@ module Linked_List
     ! Finding if its a first node or the list already have a node
     if(this_parent_list%num_parent_nodes==0) then
       call this_parent_list%append_new_child(item)
-    else if (this_parent_list%tail%child%size()==10000) then 
+    else if (this_parent_list%tail%child%size()==10000) then
       call this_parent_list%append_new_child(item)
     else
       call this_parent_list%tail%child%append(item)
@@ -53,17 +53,17 @@ module Linked_List
   pure function initialise_parent_node( item ) result( new_node )
     implicit none
     type(Parent_Node) :: new_node
-    type(List), intent(in) :: item 
+    type(List), intent(in) :: item
     ! allocating item to the new node
     allocate(new_node%child, source=item)
   end function initialise_parent_node
 
   pure subroutine append_in_new_child(this_parent_list,item)
-    implicit none 
+    implicit none
     ! initialisation of list to be used and item
     class(Parent_List), intent(inout) :: this_parent_list
     class(*), intent(in)  :: item
-    type(List)            :: new_child 
+    type(List)            :: new_child
 
     call new_child%append(item)
     if(this_parent_list%num_parent_nodes==0)then
@@ -85,13 +85,16 @@ module Linked_List
     type(Parent_Node), pointer:: current_node
     type(Parent_Node), pointer:: next_node
     integer                   :: count
+    integer                   :: number_threads
 
     !$OMP PARALLEL PRIVATE(current_node,count,next_node)
+    number_threads = omp_get_num_threads()
+    write(*,*) 'Number of threads:', number_threads
     count = this_parent_list%num_parent_nodes
     next_node => this_parent_list%head
     do while (count>0)
       current_node => next_node
-      if(modulo(count,8)==omp_get_thread_num()) then
+      if(modulo(count,number_threads)==omp_get_thread_num()) then
         call current_node%child%destroy()
         deallocate(current_node%child)
       end if
@@ -115,12 +118,12 @@ module Linked_List
     !   nullify(current_node%prev)
     !   this_parent_list%num_parent_nodes = this_parent_list%num_parent_nodes - 1
     ! end do
-      
+
   end subroutine destroy_whole_parent_list
 
   function get_element_at_index_in_parent( this_parent_list , node_index ) result (return_item)
     implicit none
-    
+
     class(Parent_List), intent(inout) :: this_parent_list
     integer, intent(in):: node_index
     class(*), pointer :: return_item

@@ -1,0 +1,58 @@
+This is the output of the test program that is given in the same directory and the module can be found in the parent directory.
+
+Number of threads: 1
+
+ Length Of Required List
+100000000
+   77.12500       81.23900
+  1.5625000E-02  2.5000000E-02
+ Done
+ Number of threads:           1
+   14.78125       14.89800
+
+
+----
+Number of threads: 2
+
+ Length Of Required List
+100000000
+   103.4062       108.9140
+  3.1250000E-02  2.5000000E-02
+ Done
+ Number of threads:           2
+ Number of threads:           2
+   50.65625       26.72500
+
+
+----
+Number of threads: 4
+
+ Length Of Required List
+100000000
+   64.21875       65.69900
+  3.1250000E-02  3.9999999E-02
+ Done
+ Number of threads:           4
+ Number of threads:           4
+ Number of threads:           4
+ Number of threads:           4
+   94.10938       24.87900
+
+
+----
+Number of threads: 8
+
+ Length Of Required List
+100000000
+   96.62500       100.8690
+  1.5625000E-02  4.5000002E-02
+ Done
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+ Number of threads:           8
+   360.5781       50.08000
