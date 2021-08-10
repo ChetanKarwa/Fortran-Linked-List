@@ -58,12 +58,14 @@ program test_link
 
   print*, "index"
   read(*,*) index
+  print*, "val"
+  read(*,*) val
   data => L%get(index)
   select type (data)
     type is (integer)
     print*, data
   end select
-  call L%remove(index);
+  call L%replace(val,index);
 
   data => L%get(index)
   select type (data)

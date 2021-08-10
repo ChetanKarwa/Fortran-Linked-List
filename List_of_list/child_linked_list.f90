@@ -269,12 +269,12 @@ module Child_linked_list
       
       count = node_index;
       if(count<1 .or. count>this_list%num_nodes) return;
-      current_node = this_list%head;
+      current_node => this_list%head;
       do while(count>1)
         count = count-1;
         current_node => current_node%next;
       end do
-      allocate(current_node%item,source = item)
+      current_node%item = item
     end subroutine replace_at_index
 
     ! pure subroutine reverse_list (this_list)
