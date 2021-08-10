@@ -27,6 +27,7 @@ module Linked_List
     procedure :: get => get_element_at_index_in_parent 
     procedure :: insert => insert_in_parent_at_index
     procedure :: size => get_total_nodes
+    procedure :: replace => replace_in_parent_at_index
   end type Parent_List
 
   contains
@@ -179,16 +180,20 @@ module Linked_List
     if (current_node%child%size() == 0) then
       if (associated(current_node%prev).and.associated(current_node%next)) then
         !List Node is in mid
+        current_node%prev%child%tail%next => current_node%next%child%head
+        current_node%next%child%head%prev => current_node%prev%child%tail
         current_node%next%prev => current_node%prev
         current_node%prev%next => current_node%next
   
       else if (associated(current_node%prev)) then
         !List tail
+        nullify(current_node%prev%child%tail%next)
         nullify(current_node%prev%next)
         this_parent_list%tail => current_node%prev
   
       else if (associated(current_node%next)) then
         !List head
+        nullify(current_node%next%child%head%prev)
         nullify(current_node%next%prev)
         this_parent_list%head => current_node%next
       end if
@@ -271,5 +276,24 @@ module Linked_List
       next_parent_node%next%prev => next_parent_node 
     end if
   end subroutine split_into_two_nodes
+
+  pure subroutine replace_in_parent_at_index( this_parent_list, item ,node_index )
+    implicit none
+
+    class(Parent_List), intent(inout) :: this_parent_list 
+    integer, intent(in)        :: node_index
+    class(*), intent(in)       :: item
+    type(Parent_Node), pointer        :: current_node
+    integer :: count
+    
+    count = node_index;
+    if(count<1 .or. count>this_parent_list%total_nodes) return;
+    current_node => this_parent_list%head;
+    do while(count>current_node%child%size())
+      count = count-current_node%child%size();
+      current_node => current_node%next;
+    end do
+    call current_node%child%replace(item,count)
+  end subroutine replace_in_parent_at_index
 
 end module Linked_List

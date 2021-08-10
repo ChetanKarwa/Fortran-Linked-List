@@ -40,6 +40,8 @@ program test_link
 
   print*, "index"
   read(*,*) index
+  print*, "val"
+  read(*,*) index
   data => L%get(index)
   select type (data)
     type is (integer)
