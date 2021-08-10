@@ -1,30 +1,19 @@
 program test_link
-  use Linked_List
+  use Child_linked_list
   implicit none
-  
-  type struct
-      integer:: a=1,b=2,c=3
-      double precision::d=5
-  end type struct
-  type(struct):: Vel2
 
   type vector
       double precision, dimension(3):: vec
   end type vector
   type(vector)::Vel
   
-  type(Parent_List):: L
-  type(Parent_Node),pointer :: head
+  type(List):: L
   integer::i,j,length,index,val
   real :: T1,T2,F
   character(len = 1000) :: mystr
   character(:), allocatable :: str2
 
   class(*), pointer :: data
-
-  do i=1,size(Vel%vec)
-      Vel%vec(i) = i
-  end do
   ! !-------------
   ! !Append items
   ! !-------------
@@ -41,19 +30,12 @@ program test_link
     ! print*,j
     str2 = mystr(1:j)
     ! print*, "appending"
-    call L%append(i) 
+    call L%push(j) 
+    data => L%get(1)
     ! print *, str2
   end do
   call cpu_time(T2)
-
-  head => L%head
-  do while(associated(head))
-    print*, head%child%size()
-    head => head%next
-  end do
-  print*,L%tail%child%size();
   i = 1
-
   write(*,*) T2-T1
 
   print*, "index"
@@ -70,7 +52,6 @@ program test_link
     type is (integer)
     print*, data
   end select
-
 
   call srand(123456789)
   call cpu_time(T1)
@@ -90,6 +71,8 @@ program test_link
   call cpu_time(T1)
   call L%destroy()
   call cpu_time(T2)
+
+  if(allocated(str2)) deallocate(str2);
 
   write(*,*) T2-T1
 

@@ -11,7 +11,7 @@ module Child_linked_list
       class(*), allocatable :: item
       contains
       procedure, private :: destroy => node_destroyed
-      procedure, private :: destroy_all => all_nodes_detroyed
+      procedure, private :: destroy_all => all_nodes_destroyed
     end type Node
   
     ! Definfing the struct List
@@ -20,11 +20,16 @@ module Child_linked_list
       type(Node), pointer :: head => null()
       type(Node), pointer :: tail => null()
       contains
-      procedure:: append => append_at_tail
+      procedure:: push => push_at_tail
+      procedure:: insert => insert_at_index
       procedure:: destroy => destroy_whole_list
       procedure:: remove => pop_node_at_index
+      procedure:: pop => pop_node_at_tail
       procedure:: get => get_node_at_index
       procedure:: size => get_length
+      procedure:: set_size => set_length
+      procedure:: replace => replace_at_index
+      ! procedure:: reverse => reverse_list
     end type List
   
     contains
@@ -37,6 +42,13 @@ module Child_linked_list
       length = this_list%num_nodes
     end function get_length
 
+    pure subroutine set_length (this_list, length)
+      implicit none 
+      class(list), intent(inout)  :: this_list
+      integer, intent(in)      :: length 
+      this_list%num_nodes = length
+    end subroutine set_length
+
     ! making a new_node
     pure function initialise_node( item ) result( new_node )
       implicit none
@@ -47,10 +59,10 @@ module Child_linked_list
     end function initialise_node
   
   
-    !appending to the list
-    pure subroutine append_at_tail( this_list, item )
+    !pushing to the list
+    pure subroutine push_at_tail( this_list, item )
       implicit none
-  
+   
       ! initialisation of list to be used and item
       class(list), intent(inout) :: this_list
       class(*), intent(in) :: item
@@ -67,7 +79,7 @@ module Child_linked_list
   
       !incrementing number of nodes
       this_list%num_nodes = this_list%num_nodes + 1
-    end subroutine append_at_tail
+    end subroutine push_at_tail
   
     function get_node_at_index( this_list, node_index ) result (return_item)
       implicit none
@@ -102,9 +114,10 @@ module Child_linked_list
   
       type(node), pointer:: current_node
       integer:: count
-  
       !iterating through the list to reach the nth node
       current_node => this_list%head
+      if(node_index<=0) return;
+      if(node_index>this_list%num_nodes) return;
       count = 1
       do while ( associated(current_node) )
         if (count==node_index) then
@@ -136,6 +149,28 @@ module Child_linked_list
         count = count+1
       end do
     end subroutine pop_node_at_index
+
+    ! Pop out a node from the list
+    pure subroutine pop_node_at_tail( this_list )
+      implicit none
+      
+      class(list), intent(inout) :: this_list
+  
+      type(node), pointer:: current_node
+
+      if(this_list%num_nodes == 0) return;
+
+      current_node => this_list%tail
+      nullify(current_node%prev%next)
+      this_list%tail => current_node%prev
+      
+      !Destroy node content and Free it's memory
+      call current_node%destroy()  
+      deallocate(current_node)
+      
+      !Reduce the count by 1
+      this_list%num_nodes = this_list%num_nodes - 1
+    end subroutine pop_node_at_tail
   
     pure subroutine destroy_whole_list( this_list )
       implicit none
@@ -147,7 +182,7 @@ module Child_linked_list
       do while (.not. this_list%num_nodes==0)
         current_node => this_list%head
         if (associated(current_node%next)) then
-          nullify(current_node%next%prev)
+          nullify(current_node%next%prev) 
           this_list%head => current_node%next
         end if
         call current_node%destroy()
@@ -170,7 +205,7 @@ module Child_linked_list
       nullify(this_node%prev)
     end subroutine node_destroyed
   
-    pure subroutine all_nodes_detroyed( this_node )
+    pure subroutine all_nodes_destroyed( this_node )
       implicit none
       !Entrada:
       class(node), intent(inout) :: this_node
@@ -187,6 +222,67 @@ module Child_linked_list
         next_node => current_node%next
       end do
 
-    end subroutine all_nodes_detroyed
+    end subroutine all_nodes_destroyed
+
+    pure subroutine insert_at_index( this_list, item ,node_index )
+      implicit none
+
+      class(list), intent(inout) :: this_list 
+      integer, intent(in)        :: node_index
+      class(*), intent(in)       :: item
+      type(node), pointer        :: current_node
+      type(node), pointer        :: next_node
+
+      integer :: count
+      count = node_index-1;
+      if(count>=this_list%num_nodes) then
+        call this_list%push(item)
+      else if(count<=0) then
+        current_node => this_list%head
+        allocate(this_list%head,source = initialise_node(item))
+        this_list%head%next => current_node
+        current_node%prev   => this_list%head
+      else
+        current_node => this_list%head
+        do while(count>1)
+          count = count-1;
+          current_node => current_node%next;
+        end do
+        next_node => current_node%next
+        allocate(current_node%next,source = initialise_node(item))
+        current_node%next%prev => current_node
+        current_node%next%next => next_node
+        current_node => current_node%next 
+        current_node%next%prev => current_node
+      end if
+      this_list%num_nodes = this_list%num_nodes + 1;
+    end subroutine insert_at_index
+
+    pure subroutine replace_at_index( this_list, item ,node_index )
+      implicit none
+
+      class(list), intent(inout) :: this_list 
+      integer, intent(in)        :: node_index
+      class(*), intent(in)       :: item
+      type(node), pointer        :: current_node
+      integer :: count
+      
+      count = node_index;
+      if(count<1 .or. count>this_list%num_nodes) return;
+      current_node = this_list%head;
+      do while(count>1)
+        count = count-1;
+        current_node => current_node%next;
+      end do
+      allocate(current_node%item,source = item)
+    end subroutine replace_at_index
+
+    ! pure subroutine reverse_list (this_list)
+    !   class(list), intent(inout) :: this_list 
+    !   type(node), pointer        :: temp_node
+    !   type(node), pointer        :: curr_node
+
+      
+    ! end subroutine reverse_list
 end module Child_linked_list
 

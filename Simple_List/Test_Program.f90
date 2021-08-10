@@ -13,9 +13,8 @@ program test_link
   end type vector
   type(vector)::Vel
   
-  type(Parent_List):: L
-  type(Parent_Node),pointer :: head
-  integer::i,j,length,index,val
+  type(List):: L
+  integer::i,j,length
   real :: T1,T2,F
   character(len = 1000) :: mystr
   character(:), allocatable :: str2
@@ -34,49 +33,28 @@ program test_link
   do i = 1,1000
     mystr(i:i) = "a"
   end do
-  call srand(123456789)
+
   call cpu_time(T1)
   do i=1,length
     j = rand()*900 + 100
-    ! print*,j
+    print*,j
     str2 = mystr(1:j)
-    ! print*, "appending"
-    call L%append(i) 
-    ! print *, str2
+    call L%append(str2)
+    print *, str2
   end do
   call cpu_time(T2)
-
-  head => L%head
-  do while(associated(head))
-    print*, head%child%size()
-    head => head%next
-  end do
-  print*,L%tail%child%size();
   i = 1
 
   write(*,*) T2-T1
-
-  print*, "index"
-  read(*,*) index
-  data => L%get(index)
-  select type (data)
-    type is (integer)
-    print*, data
-  end select
-  call L%remove(index);
-
-  data => L%get(index)
-  select type (data)
-    type is (integer)
-    print*, data
-  end select
-
 
   call srand(123456789)
   call cpu_time(T1)
   do while (i<=100)
     j = rand()*length
     data => L%get(j)
+    select type (data)
+    type is (integer)
+    end select 
     i = i+1
   end do  
   call cpu_time(T2)
