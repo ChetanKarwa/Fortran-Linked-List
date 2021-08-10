@@ -29,7 +29,7 @@ module Child_linked_list
       procedure:: size => get_length
       procedure:: set_size => set_length
       procedure:: replace => replace_at_index
-      ! procedure:: reverse => reverse_list
+      procedure:: reverse => reverse_list
     end type List
   
     contains
@@ -277,12 +277,24 @@ module Child_linked_list
       current_node%item = item
     end subroutine replace_at_index
 
-    ! pure subroutine reverse_list (this_list)
-    !   class(list), intent(inout) :: this_list 
-    !   type(node), pointer        :: temp_node
-    !   type(node), pointer        :: curr_node
+    pure subroutine reverse_list (this_list)
+      class(list), intent(inout) :: this_list 
+      type(node), pointer        :: temp_node
+      type(node), pointer        :: curr_node
 
+      nullify(temp_node) 
+      curr_node => this_list%head
+      do while (associated(curr_node))
+        temp_node => curr_node%prev;
+        curr_node%prev => curr_node%next;
+        curr_node%next => temp_node;            
+        curr_node => curr_node%prev;
+      end do
       
-    ! end subroutine reverse_list
+      temp_node=> this_list%head
+      this_list%head => this_list%tail
+      this_list%tail => temp_node
+
+    end subroutine reverse_list
 end module Child_linked_list
 

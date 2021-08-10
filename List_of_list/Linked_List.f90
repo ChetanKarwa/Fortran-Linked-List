@@ -28,6 +28,7 @@ module Linked_List
     procedure :: insert => insert_in_parent_at_index
     procedure :: size => get_total_nodes
     procedure :: replace => replace_in_parent_at_index
+    procedure :: reverse => reverse_parent_list
   end type Parent_List
 
   contains
@@ -295,5 +296,30 @@ module Linked_List
     end do
     call current_node%child%replace(item,count)
   end subroutine replace_in_parent_at_index
+
+  pure subroutine reverse_parent_list (this_parent_list)
+      class(parent_list), intent(inout) :: this_parent_list 
+      type(parent_node), pointer        :: temp_node
+      type(parent_node), pointer        :: curr_node
+
+      nullify(temp_node) 
+      curr_node => this_parent_list%head
+      do while (associated(curr_node))
+        call curr_node%child%reverse()
+        curr_node => curr_node%next
+      end do
+      curr_node => this_parent_list%head
+      do while (associated(curr_node))
+        temp_node => curr_node%prev;
+        curr_node%prev => curr_node%next;
+        curr_node%next => temp_node;            
+        curr_node => curr_node%prev;
+      end do
+
+      temp_node=> this_parent_list%head
+      this_parent_list%head => this_parent_list%tail
+      this_parent_list%tail => temp_node
+
+    end subroutine reverse_parent_list
 
 end module Linked_List

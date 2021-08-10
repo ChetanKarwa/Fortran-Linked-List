@@ -8,6 +8,7 @@ program test_link
   type(vector)::Vel
   
   type(List):: L
+  type(node),pointer :: head
   integer::i,j,length,index,val
   real :: T1,T2,F
   character(len = 1000) :: mystr
@@ -30,36 +31,58 @@ program test_link
     ! print*,j
     str2 = mystr(1:j)
     ! print*, "appending"
-    call L%push(j) 
-    data => L%get(1)
+    call L%push(i) 
     ! print *, str2
   end do
   call cpu_time(T2)
   i = 1
   write(*,*) T2-T1
 
-  print*, "index"
-  read(*,*) index
-  print*, "val"
-  read(*,*) index
-  data => L%get(index)
-  select type (data)
-    type is (integer)
-    print*, data
-  end select
-  call L%remove(index);
+  ! print*, "index"
+  ! read(*,*) index
+  ! print*, "val"
+  ! read(*,*) index
+  ! data => L%get(index)
+  ! select type (data)
+  !   type is (integer)
+  !   print*, data
+  ! end select
+  ! call L%remove(index);
 
-  data => L%get(index)
-  select type (data)
-    type is (integer)
-    print*, data
-  end select
+  ! data => L%get(index)
+  ! select type (data)
+  !   type is (integer)
+  !   print*, data
+  ! end select
 
+  ! head => L%head
+  ! data => head%item
+  ! do while(associated(head))
+  !   select type (data)
+  !     type is (integer)
+  !     print*, data
+  !   end select
+  !   head => head%next
+  ! end do
+  i = 1
   call srand(123456789)
   call cpu_time(T1)
-  do while (i<=100)
-    j = rand()*length
-    data => L%get(j)
+  do while (i<=10)
+    data => L%get(i)
+    select type (data)
+      type is (integer)
+      print*, data
+    end select
+    i = i+1
+  end do  
+  call L%reverse()
+  i = 1
+  do while (i<=10)
+    data => L%get(i)
+    select type (data)
+      type is (integer)
+      print*, data
+    end select
     i = i+1
   end do  
   call cpu_time(T2)

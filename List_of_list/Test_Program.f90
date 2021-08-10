@@ -45,14 +45,25 @@ program test_link
     ! print *, str2
   end do
   call cpu_time(T2)
-
-  head => L%head
-  do while(associated(head))
-    print*, head%child%size()
-    head => head%next
-  end do
-  print*,L%tail%child%size();
   i = 1
+  do while (i<=200)
+    data => L%get(i*100)
+    select type (data)
+      type is (integer)
+      print*, data
+    end select
+    i = i+1
+  end do  
+  call L%reverse()
+  i = 1
+  do while (i<=200)
+    data => L%get(i*100)
+    select type (data)
+      type is (integer)
+      print*, data
+    end select
+    i = i+1
+  end do  
 
   write(*,*) T2-T1
 
