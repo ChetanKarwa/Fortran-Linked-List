@@ -81,7 +81,7 @@ module linked_list
       count = count+1
     end do
     nullify(current_node)
-    allocate(return_item,source = "Wrong Input")
+    nullify(return_item)
   end function get_node_at_index
 
   ! Pop out a node from the list, by a given number.

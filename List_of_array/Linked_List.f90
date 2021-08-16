@@ -92,7 +92,7 @@ module linked_list
       count = count-current_node%size
     end do
     nullify(current_node)
-    allocate(return_item,source = "Wrong Input")
+    return_item =>null()
   end function get_node_at_index
 
   subroutine destroy_whole_list( this_list )
