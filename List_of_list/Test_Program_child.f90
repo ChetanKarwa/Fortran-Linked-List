@@ -7,6 +7,7 @@ program test_link
   end type vector
   
   type(child_list):: L
+  type(Node), pointer :: head
   integer::i,j,length
   real :: T1,T2
   character(len = 1000) :: mystr
@@ -19,6 +20,28 @@ program test_link
   print*, "Length Of Required List"
   read(*,*) length
   
+  call L%insert(1,1);
+  print*, L%size()
+  call L%pop();
+  print*, L%size()
+
+  call L%insert(1,1);
+  call L%reverse()
+  ! print list
+  head => L%head
+  i = 1
+  do while(associated(head))
+    print*,"print ",i
+    data=>head%item
+    select type (data)
+      type is (integer)
+      print*, data
+    end select
+    data => L%get(i)
+    head => head%next
+  end do
+  !end print
+
   do i = 1,1000
     mystr(i:i) = "a"
   end do
@@ -26,11 +49,8 @@ program test_link
   call cpu_time(T1)
   do i=1,length
     j = INT(rand()*900) + 100
-    ! print*,j
     str2 = mystr(1:j)
-    ! print*, "appending"
     call L%push(i) 
-    ! print *, str2
   end do
   call cpu_time(T2)
   i = 1
@@ -66,7 +86,7 @@ program test_link
   !Destroy the list and frees the memmory
   !-------------
   call cpu_time(T1)
-  call L%destroy()
+  call L%clear()
   call cpu_time(T2)
 
   if(allocated(str2)) deallocate(str2);
